@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"io"
+	"os"
+	"strings"
+	"testing"
+)
 
 func TestIsPrime(t *testing.T) {
 	primeTests := []struct {
@@ -29,5 +34,33 @@ func TestIsPrime(t *testing.T) {
 		if test.msg != msg {
 			t.Errorf("%s: expected %s, but got %s", test.name, test.msg, msg)
 		}
+	}
+}
+
+func TestPrompt(t *testing.T) {
+	oldOut := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w // set os.Stdout to write pipe
+	prompt()
+	_ = w.Close()
+	os.Stdout = oldOut // Reset os.Stdout
+	out, _ := io.ReadAll(r)
+
+	if string(out) != "-> " {
+		t.Errorf("Incorrect prompt: expected -> but got %s", string(out))
+	}
+}
+
+func TestIntro(t *testing.T) {
+	oldOut := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w // set os.Stdout to write pipe
+	intro()
+	_ = w.Close()
+	os.Stdout = oldOut // Reset os.Stdout
+	out, _ := io.ReadAll(r)
+
+	if !strings.Contains(string(out), "Enter a whole number, and we'll tell you if it is a prime number or not. Enter q to quit.") {
+		t.Errorf("intro test not corrext: got %s", string(out))
 	}
 }
